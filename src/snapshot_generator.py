@@ -1,0 +1,84 @@
+import os
+import snowflake.connector
+import pandas as pd
+from dotenv import load_dotenv
+
+load_dotenv()
+
+def get_snowflake_conn():
+    return snowflake.connector.connect(
+        account=os.getenv('SNOWFLAKE_ACCOUNT'),
+        user=os.getenv('SNOWFLAKE_USER'),
+        password=os.getenv('SNOWFLAKE_PASSWORD'),
+        role=os.getenv('SNOWFLAKE_ROLE'),
+        warehouse=os.getenv('SNOWFLAKE_WAREHOUSE'),
+        database=os.getenv('SNOWFLAKE_DATABASE'),
+        schema='RAW_MARTS'
+    )
+
+def generate_dashboard_feed():
+    print("Connecting to Snowflake...")
+    conn = get_snowflake_conn()
+    
+    try:
+        # 1. Get Business Metrics (Orders)
+        query_orders = """
+        SELECT 
+            order_date, 
+            status, 
+            count(*) as order_count, 
+            sum(total_amount) as total_revenue,
+            
+            -- Clean Revenue (Excluding all known bad data)
+            sum(case 
+                when is_orphan_order 
+                  or has_negative_amount 
+                  or has_math_error 
+                  or is_future_order 
+                  or has_bad_status 
+                  or is_duplicate 
+                then 0 
+                else total_amount 
+            end) as clean_revenue,
+
+            count(case when is_orphan_order then 1 end) as orphan_orders,
+            count(case when has_negative_amount then 1 end) as negative_amount_orders,
+            count(case when is_duplicate then 1 end) as duplicate_orders,
+            count(case when is_future_order then 1 end) as future_orders,
+            count(case when has_math_error then 1 end) as math_errors,
+            count(case when has_bad_status then 1 end) as bad_status_orders
+        FROM RAW_MARTS.FCT_ORDERS
+        GROUP BY 1, 2
+        """
+        print("Fetching Order Metrics...")
+        df_orders = pd.read_sql(query_orders, conn)
+        
+        # 2. Get Data Quality Logs (Elementary)
+        # Note: This query assumes Elementary is running and populating tables.
+        # If Elementary is not yet set up, this part might return empty.
+        # We look for the model run results or test results.
+        
+        query_dq = """
+        SELECT 
+            min(generated_at) as test_run_time,
+            count(*) as total_failures
+        FROM EDQM_DB.RAW.ELEMENTARY_TEST_RESULTS
+        WHERE status = 'fail' OR status = 'warn'
+        """
+        # We might need to adjust schema/table based on Elementary version
+        
+        print("Fetching DQ Metrics (Placeholder if Elementary not ready)...")
+        # For now, let's just save the Orders data which serves as the feed
+        # We will enhance this once dbt run has happened.
+        
+        output_path = 'dashboard_feed.csv'
+        df_orders.to_csv(output_path, index=False)
+        print(f"Snapshot saved to {output_path}")
+
+        # TODO: Upload to S3 public_assets here using S3Loader
+
+    finally:
+        conn.close()
+
+if __name__ == "__main__":
+    generate_dashboard_feed()
