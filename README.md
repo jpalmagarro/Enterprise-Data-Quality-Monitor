@@ -208,6 +208,7 @@ python -m streamlit run app.py
 ├── app.py                          # 📊 Streamlit Dashboard Entry Point
 ├── main.py                         # 🚀 Data Ingestion Entry Point
 ├── docker-compose.yaml             # 🐋 Container Orchestration
+├── Dockerfile                      # 🐋 Custom Airflow Image Definition
 ├── requirements.txt                # Dependencies
 └── README.md                       # Documentation
 ```
