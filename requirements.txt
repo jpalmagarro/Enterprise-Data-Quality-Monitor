@@ -1,0 +1,10 @@
+pandas
+faker
+boto3
+python-dotenv
+dbt-snowflake
+elementary-data
+atomicwrites
+streamlit
+plotly
+snowflake-connector-python
