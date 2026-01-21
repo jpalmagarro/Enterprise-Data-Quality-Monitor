@@ -233,6 +233,4 @@ python -m streamlit run app.py
 ## 👨‍💻 Author
 
 **Jill Palma Garro**
-*Enterprise Data Engineer*
-
 > *"Bad data is not just an irritation, it's a business expense."*
