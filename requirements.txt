@@ -5,6 +5,7 @@ python-dotenv
 dbt-snowflake
 elementary-data
 atomicwrites
-streamlit
+streamlit>=1.32.0
 plotly
 snowflake-connector-python
+protobuf<5,>=3.20
