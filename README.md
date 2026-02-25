@@ -1,6 +1,7 @@
 # 🛡️ Enterprise Data Quality Monitor (ELT + Observability)
 
-**A Production-Grade Data Engineering Portfolio Project**  
+**A chaos-driven ELT pipeline designed to quantify the financial impact of poor data quality in 'hostile' environments**
+
 
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.32+-FF4B4B?style=flat&logo=streamlit&logoColor=white)](https://streamlit.io/)
